@@ -60,7 +60,7 @@ public class LittleDandy : MonoBehaviour
         if (gameController.GetIsStageEnd()) { return; }
         if (gameController.IsGuidePanelDisplaying()) { return; }
 
-            if (Input.GetMouseButtonUp(0))
+        if (Input.GetMouseButtonUp(0))
         {
             if (powerSlider.value <= 0) { return; }
 
@@ -70,8 +70,16 @@ public class LittleDandy : MonoBehaviour
             Vector2 point = cam.ScreenToWorldPoint(new Vector2(x, y));
             Vector2 dir = new Vector2(transform.position.x - point.x, transform.position.y - point.y);
             rg2D.AddForce(dir * pushForce);
-            rg2D.AddTorque(Random.Range(-torqueForce, torqueForce));
-
+            if (point.x <= transform.position.x)
+            {
+                rg2D.AddTorque(Random.Range(0, torqueForce));
+                print("to right");
+            }
+            else
+            {
+                rg2D.AddTorque(Random.Range(-torqueForce, 0));
+                print("to left");
+            }
         }
 
         if (mainModule.simulationSpeed == 1)
