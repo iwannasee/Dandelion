@@ -5,8 +5,12 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour {
-	public Text distance;
-	public GameObject resultPanel;
+    public float maxTimeGiven;
+    public float timeLeftRateOneStar;
+    public float timeLeftRateTwoStar;
+	public Text timeCountText;
+    public Text gateOpenNotifText;
+    public GameObject resultPanel;
     public GameObject guidePanel;
 	public GameObject desPref;
 	private Transform dandelion;
@@ -19,6 +23,8 @@ public class GameController : MonoBehaviour {
 	Transform destinationTransform;
 	public bool isStageEnd = false;
 
+    private float leftTimeHurry;
+    private float leftTimeDanger;
     private bool bIsDestinationAppeared = false;
 	// Use this for initialization
 	void Start () {
@@ -26,18 +32,43 @@ public class GameController : MonoBehaviour {
         guidePanel.SetActive(true);
         dandelion = FindObjectOfType<LittleDandy>().transform;
         dandyFellows = FindObjectsOfType<DandyFellow>();
-	}
+        timeCountText.text = Mathf.Round(maxTimeGiven).ToString();
+        //TODO replace magic number
+        leftTimeDanger = maxTimeGiven* timeLeftRateOneStar;
+        leftTimeHurry = maxTimeGiven * timeLeftRateTwoStar;
+    }
 	
 	// Update is called once per frame
 	void Update () {
+        if (IsGuidePanelDisplaying()) { return; }
         if (bIsDestinationAppeared)
         {
+            Debug.Log("gate opening");
+            gateOpenNotifText.text = "Gate opened";
+            /*
             float distanceToChosen = Vector2.Distance(dandelion.position, destinationTransform.position);
             float twoDigitRounded = Mathf.Round(distanceToChosen * 100f) / 100f;
-            distance.text = string.Format("{0:F2}", twoDigitRounded);
+            distance.text = string.Format("{0:F2}", twoDigitRounded);*/
         }
-		
-	}
+        if(maxTimeGiven <= 0)
+        {
+            LoseBehavior();
+            return;
+        }
+        if(maxTimeGiven <= leftTimeDanger)
+        {
+            timeCountText.color = Color.red;
+        }else if(maxTimeGiven <= leftTimeHurry)
+        {
+            timeCountText.color = Color.yellow;
+        }
+
+        if (isStageEnd) { return; }
+
+        maxTimeGiven -= Time.deltaTime;
+        timeCountText.text = Mathf.Round(maxTimeGiven).ToString();
+        
+    }
 
 	public void WinBehavior(){
 		resultPanel.transform.GetChild(0).GetComponent<Text>().text = "CLEAR";
@@ -48,6 +79,7 @@ public class GameController : MonoBehaviour {
 
 		//Get score
 		float scoreEarned = dandelion.GetComponent<LittleDandy>().GetRemainingHealth()*100;
+        
 		//Calculate the current scene's index
 		//TODO Warning, here is assumed that the level 1 build index is 2. If the build index changes, the magic number must be changed as well
 		int levelIndexOfThisScene = SceneManager.GetActiveScene().buildIndex - 2;

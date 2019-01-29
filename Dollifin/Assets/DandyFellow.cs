@@ -14,11 +14,6 @@ public class DandyFellow : MonoBehaviour {
         petalEffect.gameObject.SetActive(false);
 
     }
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 
     public void PlayEffectWhenTouchDandy()
     {
